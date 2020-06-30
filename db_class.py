@@ -16,7 +16,7 @@ class Regions(list):
 class DBRegion:
     @staticmethod
     def get(label):
-        # лезем в табоицу и возвращаем ID
+        # лезем в таблицу и возвращаем ID
         return None
 
     @staticmethod

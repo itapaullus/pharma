@@ -4,9 +4,10 @@ gid = 0
 
 
 class Product:
-    def __init__(self, label, args):
+    def __init__(self, label, engname, args):
         self.label = label
         self.synonyms = set(list(args) + [label])
+        self.engname = engname
 
 
 class Products(list):
@@ -14,7 +15,7 @@ class Products(list):
         super(Products, self).__init__()
         df = pd.read_excel(path)
         for i in df.to_records():
-            self.append(Product(i[1], list(i)[1:]))
+            self.append(Product(i[1], list(i)[2], list(i)[3:7]))
 
 
 class DBProduct:
@@ -25,7 +26,11 @@ class DBProduct:
 
     @staticmethod
     def save_synonyms(id, synonyms):
-        print(f'Сохранили {id} {synonyms}')
+        print(f'Сохранили синонимы {id} {synonyms}')
+
+    @staticmethod
+    def save_eng(engname):
+        print(f'Save EnName - {engname}')
 
     @staticmethod
     def save_product(label):
@@ -39,13 +44,14 @@ class DBProduct:
         return Products()
 
 
-List = Products('Product.xlsx')
-for i in List:
+#List = Products('Product.xlsx')
+#for i in List:
     # print(i.label)
     # print(i.synonyms)
-    productid = DBProduct.get(i.label)
-    if productid:
-        DBProduct.save_synonyms(productid, i.synonyms)
-    else:
-        newid = DBProduct.save_product(i.label)
-        DBProduct.save_synonyms(newid, i.synonyms)
+    #productid = DBProduct.get(i.label)
+    #if productid:
+        #DBProduct.save_synonyms(productid, i.synonyms)
+    #else:
+        #newid = DBProduct.save_product(i.label)
+        #DBProduct.save_synonyms(newid, i.synonyms)
+        #DBProduct.save_eng(i.engname)
