@@ -1,5 +1,6 @@
 import pandas as pd
 import db_class as db
+import xlrd
 
 RegList = db.Regions('data/Regions.xlsx')
 for i in RegList:
