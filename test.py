@@ -3,7 +3,7 @@ import db_class as db
 import db_class2 as db2
 import db_class3 as db3
 
-RegList = db.Regions('Regions.xlsx')
+RegList = db.Regions('data/Regions.xlsx')
 for i in RegList:
     # print(i.label)
     # print(i.synonyms)
@@ -14,7 +14,7 @@ for i in RegList:
         newid = db.DBRegion.save_region(i.label)
         db.DBRegion.save_synonyms(newid, i.synonyms)
 
-List = db2.Products('Product.xlsx')
+List = db2.Products('data/Product.xlsx')
 for i in List:
     # print(i.label)
     # print(i.synonyms)
@@ -27,7 +27,7 @@ for i in List:
         db2.DBProduct.save_eng(i.engname)
 
 
-List = db3.Distribs('Distributors.xlsx')
+List = db3.Distribs('data/Distributors.xlsx')
 for i in List:
     # print(i.label)
     # print(i.synonyms)

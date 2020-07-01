@@ -1,7 +1,7 @@
 import pandas as pd
 import db_class as db
 
-RegList = db.Regions('Regions.xlsx')
+RegList = db.Regions('data/Regions.xlsx')
 for i in RegList:
     # print(i.label)
     # print(i.synonyms)
