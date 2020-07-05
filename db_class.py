@@ -1,4 +1,5 @@
 import pandas as pd
+import ext_api
 
 gid = 0
 class Region:
@@ -33,3 +34,18 @@ class DBRegion:
     @staticmethod
     def getlist():
         return Regions()
+
+class Client:
+    def __init__(self, inn, label = ''):
+        self.inn = inn
+        if label:
+            self.label = label
+        else:
+            self.label = ext_api.Dadata.get_client_by_inn(inn)
+
+
+class DBClient:
+    @staticmethod
+    def get():
+        pass
+

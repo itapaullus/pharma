@@ -1,6 +1,5 @@
-import pandas as pd
 import db_class as db
-import xlrd
+
 
 RegList = db.Regions('data/Regions.xlsx')
 for i in RegList:
@@ -12,9 +11,3 @@ for i in RegList:
     else:
         newid = db.DBRegion.save_region(i.label)
         db.DBRegion.save_synonyms(newid, i.synonyms)
-
-
-
-# reg = Region('Адыгея', ['Адыгея', 'Адыгейская адыгея'])
-# print(reg.label)
-# print(reg.synonyms)
