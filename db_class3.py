@@ -35,15 +35,3 @@ class DBDistrib:
     @staticmethod
     def getlist():
         return Distribs()
-
-
-#List = Distribs('Distributors.xlsx')
-#for i in List:
-    # print(i.label)
-    # print(i.synonyms)
-   # distribid = DBDistrib.get(i.label)
-    #if distribid:
-     #   DBDistrib.save_distrib(distribid, i.label)
-    #else:
-       # newid = DBDistrib.save_distrib(i.label)
-       # DBDistrib.save_eng(i.engdist)
