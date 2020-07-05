@@ -11,4 +11,4 @@ for i in df.to_records():
         ph_name = ext_api.Dadata.get_client_by_inn(str(i[2]))
         print(ph_name)
         #inn.update({a: ph_name})
-        #inn.to_csv('data/Client.csv', sheet_name='Лист1')
+        #inn.to_csv('data/Client.csv', sheet_name='Лист1')#
