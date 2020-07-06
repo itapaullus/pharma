@@ -6,19 +6,20 @@ class Dadata:
     _URL_INN = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party'
     @classmethod
     def get_client_by_inn(cls, inn):
-        resp = r.post(cls._URL_INN,
-                    data=json.dumps({
-                        "query": inn
-                    }),
-                    headers={
-                        'Authorization': cls._TOKEN,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                    )
         try:
+            resp = r.post(cls._URL_INN,
+                        data=json.dumps({
+                            "query": inn
+                        }),
+                        headers={
+                            'Authorization': cls._TOKEN,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                        )
             return resp.json().get('suggestions')[0].get('value')
         except:
+            print('Сервис недоступен')
             return None
 
 
