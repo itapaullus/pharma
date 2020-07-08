@@ -54,4 +54,4 @@ create table branch (
     label varchar,
     region_id   int references region(id),
     distributor_id  int references distributor(id)
-)
+);

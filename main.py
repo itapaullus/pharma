@@ -1,5 +1,4 @@
-import db_class as db
-
+from dictionary import region as db
 
 RegList = db.Regions('data/Regions.xlsx')
 for i in RegList:

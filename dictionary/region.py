@@ -1,11 +1,15 @@
 import pandas as pd
-import ext_api
+from psycopg2 import extensions
+from psycopg2.extras import DictCursor
 
 gid = 0
+
+
 class Region:
     def __init__(self, label, args):
         self.label = label
         self.synonyms = set(list(args) + [label])
+
 
 class Regions(list):
     def __init__(self, path=None):
@@ -14,10 +18,16 @@ class Regions(list):
         for i in df.to_records():
             self.append(Region(i[1], list(i)[1:]))
 
+
 class DBRegion:
     @staticmethod
-    def get(label):
+    def get(conn: extensions.connection, label):
         # лезем в таблицу и возвращаем ID
+        with conn.cursor(cursor_factory=DictCursor) as cursor:
+            cursor.execute("select * from region where label = %s", (label))
+            print(cursor)
+            for row in map(dict, cursor):
+                print(row)
         return None
 
     @staticmethod
@@ -34,18 +44,3 @@ class DBRegion:
     @staticmethod
     def getlist():
         return Regions()
-
-class Client:
-    def __init__(self, inn, label = ''):
-        self.inn = inn
-        if label:
-            self.label = label
-        else:
-            self.label = ext_api.Dadata.get_client_by_inn(inn)
-
-
-class DBClient:
-    @staticmethod
-    def get():
-        pass
-
