@@ -1,0 +1,10 @@
+drop table branch;
+drop table manager2client;
+drop table manager2network;
+drop table region_synonyms;
+drop table region;
+drop table client;
+drop table manager;
+drop table distributor;
+drop table network;
+drop sequence seq_pharma_id;
