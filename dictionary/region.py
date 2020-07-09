@@ -22,26 +22,23 @@ class Regions(list):
 
 class DBRegion:
     @staticmethod
-    def find(conn: extensions.connection, label):
+    def find(conn: extensions.connection, label):   # на вход получаем соединение с БД и лейбл нужного региона для поиска
         # лезем в таблицу и возвращаем ID
-        with conn.cursor(cursor_factory=DictCursor) as cursor:
-            cursor.execute("select * from region where label = %s", (label, ))
-            if cursor:
-                for row in map(dict, cursor):
-                    return Region(id=row['id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id']))
+        with conn.cursor(cursor_factory=DictCursor) as cursor:  # устанавливаем контекст. Это можно пока просто как правило считать
+            cursor.execute("select * from region where label = %s", (label, )) # выполняем запрос
+            if cursor: # если есть результаты в датасете...
+                for row in map(dict, cursor): # проходим по ним датасету в цикле, преобразовывая каждую его строку в словарь
+                    return Region(id=row['id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id'])) # возвращаем сразу первую строку, так как больше одной строки с одним названием быть не может
         return None
 
     @staticmethod
     def get_synonyms(conn: extensions.connection, id):
         synonyms = []
         with conn.cursor(cursor_factory=DictCursor) as cursor:
-            print(id)
             cursor.execute("select * from region_synonyms where region_id = %s", (id, ))
             if cursor:
-                print(cursor)
                 for row in map(dict, cursor):
-                    print(row)
-                    synonyms.append(row.get('label'))
+                    synonyms.append(row.get('synonym'))
             return synonyms
 
     @staticmethod
