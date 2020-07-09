@@ -6,6 +6,9 @@ def main():
     conn = psycopg2.connect(dbname='ewwpaullus', user='ewwpaullus',
                             password='tkMsD2fuu4U2NR', host='pg2.sweb.ru')
 
-    region.DBRegion.get(conn, 'test')
+    reg = region.DBRegion.find(conn, 'test region')
+    print(reg.label)
+    print(reg.id)
+    print(reg.synonyms)
 
 main()
