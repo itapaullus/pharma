@@ -7,9 +7,19 @@ gid = 0
 
 class Region:
     def __init__(self, **kwargs):
-        self.id = kwargs.get('id')
-        self.label = kwargs.get('label')
-        self.synonyms = set(kwargs.get('synonyms', []) + [self.label])
+        if kwargs.get('id'):
+            self.id = kwargs.get('id')
+            self.label = kwargs.get('label')
+            self.synonyms = set(kwargs.get('synonyms', []) + [self.label])
+        else:
+            conn = kwargs.get('connection')
+            with conn.cursor(cursor_factory=DictCursor) as cursor:
+                cursor.execute("select * from region where id = %s", (kwargs.get('id'), ))
+                if cursor:
+                    for row in map(dict, cursor):
+                        self.id = row.get('id')
+                        self.label = row.get('label')
+                        self.synonyms = DBRegion.get_synonyms(conn, row['id'])
 
 
 class Regions(list):
@@ -26,9 +36,17 @@ class DBRegion:
         # лезем в таблицу и возвращаем ID
         with conn.cursor(cursor_factory=DictCursor) as cursor:  # устанавливаем контекст. Это можно пока просто как правило считать
             cursor.execute("select * from region where label = %s", (label, )) # выполняем запрос
-            if cursor: # если есть результаты в датасете...
-                for row in map(dict, cursor): # проходим по ним датасету в цикле, преобразовывая каждую его строку в словарь
+            if cursor:  # если есть результаты в датасете...
+                print(cursor)
+                for row in map(dict, cursor):  # проходим по ним датасету в цикле, преобразовывая каждую его строку в словарь
+                    print(41)
                     return Region(id=row['id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id'])) # возвращаем сразу первую строку, так как больше одной строки с одним названием быть не может
+            else: # если результатов нет, поищем в синонимах
+                print('Ищем в синонимах')
+                cursor.execute("select * from region_synonyms where synonym = %s", (label, ))
+                if cursor:
+                    for row in map(dict, cursor):
+                        return Region(id=row['region_id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id']))
         return None
 
     @staticmethod
