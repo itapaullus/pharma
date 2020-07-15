@@ -1,9 +1,12 @@
 import requests as r
 import json
+from dadata import Dadata
 
-class Dadata:
-    _TOKEN = 'Token e2f762391c5d378c95cbacfc255d4a4dd696b3a7'
+
+class MyDadata:
+    _TOKEN = 'e2f762391c5d378c95cbacfc255d4a4dd696b3a7'
     _URL_INN = 'https://suggestions.dadata.ru/suggestions/api/4_1/rs/findById/party'
+    _SECRET = '2df414e3088b641ab955285c4c2937acb982e34a'
     @classmethod
     def get_client_by_inn(cls, inn):
         try:
@@ -12,7 +15,7 @@ class Dadata:
                             "query": inn
                         }),
                         headers={
-                            'Authorization': cls._TOKEN,
+                            'Authorization': 'TOKEN '+cls._TOKEN,
                             'Content-Type': 'application/json',
                             'Accept': 'application/json'
                         }
@@ -22,6 +25,13 @@ class Dadata:
             print('Сервис недоступен')
             return None
 
+    @classmethod
+    def formataddress(cls, text):
+        dadata = Dadata(cls._TOKEN, cls._SECRET)
+        return dadata.clean("address", text)
 
-request = Dadata.get_client_by_inn("7707083893")
-print(request)
+# request = Dadata.get_client_by_inn("7707083893")
+# print(request)
+
+print(MyDadata.formataddress('мск сухонская 11 89'))
+print(MyDadata.get_client_by_inn('7707083893'))
