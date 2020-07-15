@@ -29,18 +29,18 @@ class Base:
         return new_id
 
 
-class Region(Base):
-    tablename = 'region'
+class Test(Base):
+    tablename = 'test'
 
     @classmethod
     def select(cls, **kwargs):
-        return super(Region, cls).select(**kwargs)
+        return super(Test, cls).select(**kwargs)
 
 
 
 if __name__ == '__main__':
     try:
-        print(Region.select(where="label = 'test kim'"))
-        print(Region.insert(label = 'myNewRegion'))
+        print(Test.select(where="label = 'test kim'"))
+        print(Test.insert(label = 'myNewRegion'))
     except Exception as e:
         logger.exception(e)
