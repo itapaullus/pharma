@@ -14,7 +14,7 @@ class Region:
         else:
             conn = kwargs.get('connection')
             with conn.cursor(cursor_factory=DictCursor) as cursor:
-                cursor.execute("select * from region where id = %s", (kwargs.get('id'), ))
+                cursor.select("select * from region where id = %s", (kwargs.get('id'),))
                 if cursor:
                     for row in map(dict, cursor):
                         self.id = row.get('id')
@@ -35,7 +35,7 @@ class DBRegion:
     def find(conn: extensions.connection, label):   # на вход получаем соединение с БД и лейбл нужного региона для поиска
         # лезем в таблицу и возвращаем ID
         with conn.cursor(cursor_factory=DictCursor) as cursor:  # устанавливаем контекст. Это можно пока просто как правило считать
-            cursor.execute("select * from region where label = %s", (label, )) # выполняем запрос
+            cursor.select("select * from region where label = %s", (label,)) # выполняем запрос
             if cursor:  # если есть результаты в датасете...
                 print(cursor)
                 for row in map(dict, cursor):  # проходим по ним датасету в цикле, преобразовывая каждую его строку в словарь
@@ -43,7 +43,7 @@ class DBRegion:
                     return Region(id=row['id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id'])) # возвращаем сразу первую строку, так как больше одной строки с одним названием быть не может
             else: # если результатов нет, поищем в синонимах
                 print('Ищем в синонимах')
-                cursor.execute("select * from region_synonyms where synonym = %s", (label, ))
+                cursor.select("select * from region_synonyms where synonym = %s", (label,))
                 if cursor:
                     for row in map(dict, cursor):
                         return Region(id=row['region_id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id']))
@@ -53,7 +53,7 @@ class DBRegion:
     def get_synonyms(conn: extensions.connection, id):
         synonyms = []
         with conn.cursor(cursor_factory=DictCursor) as cursor:
-            cursor.execute("select * from region_synonyms where region_id = %s", (id, ))
+            cursor.select("select * from region_synonyms where region_id = %s", (id,))
             if cursor:
                 for row in map(dict, cursor):
                     synonyms.append(row.get('synonym'))

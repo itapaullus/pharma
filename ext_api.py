@@ -33,5 +33,6 @@ class MyDadata:
 # request = Dadata.get_client_by_inn("7707083893")
 # print(request)
 
-print(MyDadata.formataddress('мск сухонская 11 89'))
+
+print(MyDadata.formataddress('перервинский бульвар 2-1-69'))
 print(MyDadata.get_client_by_inn('7707083893'))
