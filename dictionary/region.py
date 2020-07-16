@@ -1,10 +1,5 @@
-import pandas as pd
-from psycopg2 import extensions
-from psycopg2.extras import DictCursor
-from .BaseDict import Base
+from .BaseDict import Base, BaseExcel
 import Log
-
-# import dictionary
 
 
 class Region:
@@ -15,11 +10,7 @@ class Region:
 
 
 class Regions(list):
-    def __init__(self, path=None):
-        super(Regions, self).__init__()
-        df = pd.read_excel(path)
-        for i in df.to_records():
-            self.append(Region(label=i[1], synonyms=list(i)[1:]))
+    pass
 
 
 class DBRegion(Base):
@@ -35,17 +26,25 @@ class DBRegion(Base):
         elif label:
             ds = cls.select(where=f"label='{label}'")
             if not ds:  # Не нашли, надо поискать в синонимах
-                logger.info(f'{label} не найден в справочнике регионов')
-                ds = cls.select(where=f"synonym='{label}'", table='region_synonyms')
-                resid = list(ds.values())[0]['region_id']
-                logger.debug(f'Рекурсивно вызываем Region.get(id={resid})')
-                return cls.get(id=resid)
-        resid = list(ds.keys())[0]
-        label = list(ds.values())[0]['label']
-        # теперь возьмем синонимы
-        syn = cls.get_synonyms(cls, resid)
-        logger.debug(f'result set: {ds} {syn}')
-        return Region(id=resid, label=label, synonyms=syn)
+                logger.warning(f'{label} не найден в справочнике регионов')
+                synds = cls.select(where=f"synonym='{label}'", table='region_synonyms')
+                if synds:
+                    resid = list(synds.values())[0]['region_id']
+                    logger.debug(f'Рекурсивно вызываем Region.get(id={resid})')
+                    return cls.get(id=resid)
+        else:
+            logger.error('Для поиска по регионам должен быть передан ID или LABEL')
+            raise TypeError('Не передан обязательный атрибут для поиска по справочнику Регион')
+        if ds:
+            resid = list(ds.keys())[0]
+            label = list(ds.values())[0]['label']
+            # теперь возьмем синонимы
+            syn = cls.get_synonyms(cls, resid)
+            logger.debug(f'result set: {ds} {syn}')
+            return Region(id=resid, label=label, synonyms=syn)
+        else:
+            logger.warning(f'Не удалось найти подходящий регион!')
+            return
 
     @staticmethod
     def get_synonyms(cls, id):
@@ -55,10 +54,25 @@ class DBRegion(Base):
         logger.debug(f'result set: {ds}')
         return ds
 
-    @staticmethod
-    def save_region(label):
-        pass
+    @classmethod
+    def save(cls, label):
+        logger = Log.Logger('DICTIONARY.REGION.SAVE')
+        newid = cls.insert(label=label)
+        logger.info(f'Сохраняем регион id:{newid} label:{label}')
+        return newid
 
-    @staticmethod
-    def getlist():
-        pass
+
+class ExcelRegion(BaseExcel):
+    logger = Log.Logger('DICTIONARY.EXCELREGION.SAVETODB')
+
+    def __init__(self, path):
+        super().__init__(path)
+
+    def savetodb(self):
+        try:
+            for row in self.xls:
+                DBRegion.insert(label=row[4])
+            DBRegion.commit()
+        except Exception as e:
+            self.logger.error(e)
+            DBRegion.rollback()

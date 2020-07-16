@@ -24,7 +24,7 @@ create table client (
 
 create table region (
     id int primary key default nextval('seq_pharma_id'),
-    label varchar
+    label varchar unique
 );
 
 create table region_synonyms (

@@ -1,7 +1,7 @@
-import psycopg2
-from psycopg2 import extensions
 from postgre_engine import SQL
+import pandas as pd
 import Log
+import numpy
 
 logger = Log.Logger('BASEDICT')
 
@@ -28,19 +28,36 @@ class Base:
         new_id = SQL.insert(stmt=stmt, **kwargs)
         return new_id
 
-
-class Test(Base):
-    tablename = 'test'
+    @classmethod
+    def commit(cls):
+        SQL.commit()
 
     @classmethod
-    def select(cls, **kwargs):
-        return super(Test, cls).select(**kwargs)
+    def rollback(cls):
+        SQL.rollback()
 
+
+class BaseExcel:
+    def __init__(self, path):
+        df = pd.read_excel(path)
+        self.xls = []
+        for row in df.to_records():
+            row: numpy.record
+            self.xls.append([col for col in row])
+
+
+class Test(BaseExcel):
+    # tablename = 'test'
+    pass
+    # @classmethod
+    # def select(cls, **kwargs):
+    #     return super(Test, cls).select(**kwargs)
 
 
 if __name__ == '__main__':
     try:
-        print(Test.select(where="label = 'test kim'"))
-        print(Test.insert(label = 'myNewRegion'))
+        Test(r'data\Regions.xlsx')
+        # print(Test.select(where="label = 'test kim'"))
+        # print(Test.insert(label = 'myNewRegion'))
     except Exception as e:
         logger.exception(e)

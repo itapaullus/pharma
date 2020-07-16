@@ -34,9 +34,19 @@ class SQL:
             try:
                 cursor.execute(stmt)
                 new_id = cursor.fetchone()[0]
-                cls.conn.commit()
+                # cls.conn.commit()
                 logger.info(f'{stmt}: 1 row inserted. NewID = {new_id}')
                 return new_id
             except Exception as e:
                 logger.exception(f'SQL ERROR: {stmt}:   {e}')
                 raise
+
+    @classmethod
+    def commit(cls):
+        cls.logger.info('Transaction commit')
+        cls.conn.commit()
+
+    @classmethod
+    def rollback(cls):
+        cls.logger.info('Transaction rollback')
+        cls.conn.rollback()
