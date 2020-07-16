@@ -1,5 +1,4 @@
 import psycopg2
-from dictionary import region
 import Log
 from psycopg2.extras import DictCursor
 
