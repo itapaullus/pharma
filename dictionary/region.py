@@ -56,6 +56,7 @@ class DBRegion(Base):
 
     @classmethod
     def save(cls, label):
+        """Сохраняет в справочник регионов указанный label"""
         logger = Log.Logger('DICTIONARY.REGION.SAVE')
         newid = cls.insert(label=label)
         logger.info(f'Сохраняем регион id:{newid} label:{label}')
@@ -69,10 +70,14 @@ class ExcelRegion(BaseExcel):
         super().__init__(path)
 
     def savetodb(self):
+        """Сохранение в БД данных из xls"""
         try:
             for row in self.xls:
-                DBRegion.insert(label=row[4])
+                newid = DBRegion.insert(label=row[4])
+                for syn in set(row):
+                    DBRegion.insert(table='region_synonyms', region_id=newid, synonym=syn)
             DBRegion.commit()
+            self.logger.info('Справочник Регионов успешно сохранен!')
         except Exception as e:
             self.logger.error(e)
             DBRegion.rollback()

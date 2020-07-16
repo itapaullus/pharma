@@ -43,7 +43,7 @@ class SQL:
 
     @classmethod
     def commit(cls):
-        cls.logger.info('Transaction commit')
+        cls.logger.info('Transaction committ')
         cls.conn.commit()
 
     @classmethod

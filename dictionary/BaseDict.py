@@ -1,7 +1,6 @@
 from postgre_engine import SQL
 import pandas as pd
 import Log
-import numpy
 
 logger = Log.Logger('BASEDICT')
 
@@ -23,8 +22,10 @@ class Base:
 
     @classmethod
     def insert(cls, **kwargs):
-        vallist = ", ".join([f"'{col}'" for col in kwargs.values()])
-        stmt = f'insert into {cls.tablename} ({",".join(kwargs.keys())}) values ({vallist}) returning id'
+        # vallist = ", ".join([f"'{col}'" for col in kwargs.values()])
+        vallist = ",".join([f"'{col[1]}'" for col in kwargs.items() if col[0] != 'table'])
+        collist = ",".join(col for col in kwargs.keys() if col != 'table')
+        stmt = f'insert into {kwargs.get("table", cls.tablename)} ({collist}) values ({vallist}) returning id'
         new_id = SQL.insert(stmt=stmt, **kwargs)
         return new_id
 
@@ -42,22 +43,5 @@ class BaseExcel:
         df = pd.read_excel(path)
         self.xls = []
         for row in df.to_records():
-            row: numpy.record
-            self.xls.append([col for col in row])
-
-
-class Test(BaseExcel):
-    # tablename = 'test'
-    pass
-    # @classmethod
-    # def select(cls, **kwargs):
-    #     return super(Test, cls).select(**kwargs)
-
-
-if __name__ == '__main__':
-    try:
-        Test(r'data\Regions.xlsx')
-        # print(Test.select(where="label = 'test kim'"))
-        # print(Test.insert(label = 'myNewRegion'))
-    except Exception as e:
-        logger.exception(e)
+            self.xls.append([col for col in list(row)[1:-1]])
+        logger.debug(self.xls)
