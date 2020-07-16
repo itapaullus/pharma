@@ -17,7 +17,7 @@ class Base:
             whereclause = f'where {kwargs.get("where")}'
         if kwargs.get('top'):
             topclause = 'LIMIT {}'.format(kwargs.get('top'))
-        stmt = f'select * from {cls.tablename} {whereclause} {topclause}'
+        stmt = f'select * from {kwargs.get("table", cls.tablename)} {whereclause} {topclause}'
         cursor = SQL.select(stmt=stmt, **kwargs)
         return {row.get('id'): row for row in cursor}
 

@@ -1,25 +1,17 @@
 import pandas as pd
 from psycopg2 import extensions
 from psycopg2.extras import DictCursor
+from .BaseDict import Base
+import Log
 
-gid = 0
+# import dictionary
 
 
 class Region:
     def __init__(self, **kwargs):
-        if kwargs.get('id'):
-            self.id = kwargs.get('id')
-            self.label = kwargs.get('label')
-            self.synonyms = set(kwargs.get('synonyms', []) + [self.label])
-        else:
-            conn = kwargs.get('connection')
-            with conn.cursor(cursor_factory=DictCursor) as cursor:
-                cursor.select("select * from region where id = %s", (kwargs.get('id'),))
-                if cursor:
-                    for row in map(dict, cursor):
-                        self.id = row.get('id')
-                        self.label = row.get('label')
-                        self.synonyms = DBRegion.get_synonyms(conn, row['id'])
+        self.id = kwargs.get('id')
+        self.label = kwargs.get('label')
+        self.synonyms = set(kwargs.get('synonyms', []) + [self.label])
 
 
 class Regions(list):
@@ -30,46 +22,43 @@ class Regions(list):
             self.append(Region(label=i[1], synonyms=list(i)[1:]))
 
 
-class DBRegion:
-    @staticmethod
-    def find(conn: extensions.connection, label):   # на вход получаем соединение с БД и лейбл нужного региона для поиска
-        # лезем в таблицу и возвращаем ID
-        with conn.cursor(cursor_factory=DictCursor) as cursor:  # устанавливаем контекст. Это можно пока просто как правило считать
-            cursor.select("select * from region where label = %s", (label,)) # выполняем запрос
-            if cursor:  # если есть результаты в датасете...
-                print(cursor)
-                for row in map(dict, cursor):  # проходим по ним датасету в цикле, преобразовывая каждую его строку в словарь
-                    print(41)
-                    return Region(id=row['id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id'])) # возвращаем сразу первую строку, так как больше одной строки с одним названием быть не может
-            else: # если результатов нет, поищем в синонимах
-                print('Ищем в синонимах')
-                cursor.select("select * from region_synonyms where synonym = %s", (label,))
-                if cursor:
-                    for row in map(dict, cursor):
-                        return Region(id=row['region_id'], label=row['label'], synonyms=DBRegion.get_synonyms(conn, row['id']))
-        return None
+class DBRegion(Base):
+    tablename = 'region'
+
+    @classmethod
+    def get(cls, **kwargs):
+        """Ищет регион по лейблу или ID в справочнике регионов и синонимах. Возвращает объект Region"""
+        logger = Log.Logger('DICTIONARY.REGION.GET')
+        id, label = kwargs.get('id'), kwargs.get('label')
+        if id:
+            ds = cls.select(where=f'id={id}')
+        elif label:
+            ds = cls.select(where=f"label='{label}'")
+            if not ds:  # Не нашли, надо поискать в синонимах
+                logger.info(f'{label} не найден в справочнике регионов')
+                ds = cls.select(where=f"synonym='{label}'", table='region_synonyms')
+                resid = list(ds.values())[0]['region_id']
+                logger.debug(f'Рекурсивно вызываем Region.get(id={resid})')
+                return cls.get(id=resid)
+        resid = list(ds.keys())[0]
+        label = list(ds.values())[0]['label']
+        # теперь возьмем синонимы
+        syn = cls.get_synonyms(cls, resid)
+        logger.debug(f'result set: {ds} {syn}')
+        return Region(id=resid, label=label, synonyms=syn)
 
     @staticmethod
-    def get_synonyms(conn: extensions.connection, id):
-        synonyms = []
-        with conn.cursor(cursor_factory=DictCursor) as cursor:
-            cursor.select("select * from region_synonyms where region_id = %s", (id,))
-            if cursor:
-                for row in map(dict, cursor):
-                    synonyms.append(row.get('synonym'))
-            return synonyms
-
-    @staticmethod
-    def save_synonyms(id, synonyms):
-        print(f'Сохранили {id} {synonyms}')
+    def get_synonyms(cls, id):
+        """Возвращает список синонимов по указанному ID региона"""
+        logger = Log.Logger('DICTIONARY.REGION.GET_SYNONYMS')
+        ds = [row['synonym'] for row in list(cls.select(where=f'region_id={id}', table='region_synonyms').values())]
+        logger.debug(f'result set: {ds}')
+        return ds
 
     @staticmethod
     def save_region(label):
-        global gid
-        gid += 1
-        print(f'Сохранили регион {gid} - {label}')
-        return gid
+        pass
 
     @staticmethod
     def getlist():
-        return Regions()
+        pass
