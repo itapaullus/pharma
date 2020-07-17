@@ -74,7 +74,7 @@ class ExcelRegion(BaseExcel):
         try:
             for row in self.xls:
                 newid = DBRegion.insert(label=row[4])
-                for syn in set(row):
+                for syn in set(row[1:-1]):
                     DBRegion.insert(table='region_synonyms', region_id=newid, synonym=syn)
             DBRegion.commit()
             self.logger.info('Справочник Регионов успешно сохранен!')

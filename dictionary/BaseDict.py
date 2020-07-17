@@ -43,5 +43,5 @@ class BaseExcel:
         df = pd.read_excel(path)
         self.xls = []
         for row in df.to_records():
-            self.xls.append([col for col in list(row)[1:-1]])
+            self.xls.append([col for col in list(row)])
         logger.debug(self.xls)

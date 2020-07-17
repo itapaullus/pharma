@@ -7,7 +7,7 @@ create table network (
 
 create table distributor (
     id int primary key default nextval('seq_pharma_id'),
-    label varchar
+    label varchar unique
 );
 
 create table manager (

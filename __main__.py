@@ -1,4 +1,5 @@
 import dictionary.region as region
+import dictionary.network as network
 
 if __name__ == '__main__':
     # r = region.DBRegion.get(label='test kim')
@@ -6,5 +7,7 @@ if __name__ == '__main__':
     # new = region.DBRegion.save('italnc')
     # print(new)
     # BD.Test(r'data\Regions.xlsx')
-    reg = region.ExcelRegion(r'data\Regions.xlsx')
-    reg.savetodb()
+    # reg = region.ExcelRegion(r'data\Regions.xlsx')
+    # reg.savetodb()
+    net = network.ExcelNetwork(r'data\PharmacyChain.xlsx')
+    net.savetodb()
